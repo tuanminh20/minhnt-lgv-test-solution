@@ -1,8 +1,10 @@
-source "https://rubygems.org"
+# frozen_string_literal: true
 
-ruby "2.3.0"
+source 'https://rubygems.org'
 
-gem "rspec"
-gem "rubocop"
-gem "rubocop-airbnb"
-gem "pry"
+ruby '2.3.8'
+
+gem 'pry'
+gem 'rspec'
+gem 'rubocop'
+gem 'rubocop-airbnb'

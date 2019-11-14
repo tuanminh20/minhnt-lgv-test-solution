@@ -1,0 +1,19 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveTimeout": 5000,
+    "ruby.format": "rubocop",
+    "ruby.lint": {
+      "rubocop": true
+    },
+    "ruby.intellisense": "rubyLocate",
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "ruby.rubocop.onSave": true
+  }
+}

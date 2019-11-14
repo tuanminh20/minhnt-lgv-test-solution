@@ -4,3 +4,8 @@ inherit_from:
 AllCops:
   Exclude:
     - spec/spec_helper.rb
+
+Metrics/LineLength:
+  Max: 120
+Metrics/BlockLength:
+  Max: 100

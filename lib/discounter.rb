@@ -1,35 +1,41 @@
-require_relative './multi_item_promotion'
-require_relative './percentage_off_promotion'
+# frozen_string_literal: true
+
+require_relative './promotion/base'
+require_relative './promotion/multi_item'
+require_relative './promotion/percentage_off'
 
 class Discounter
+  # should be defined elsewhere
+  PROMO_DEFAULT_HANDLER = {
+    percentage_off: Promotion::PercentageOff,
+    multi_item: Promotion::MultiItem,
+  }.freeze
+
   def initialize(
     promotional_rules: [],
     basket: [],
-    percentage_off_promotion_klass: PercentageOffPromotion,
-    multi_item_promotion_klass: MultiItemPromotion
+    options: {}
   )
     @promotional_rules = promotional_rules
     @basket = basket
-    @promo_types = {
-      'percentage_off_basket': percentage_off_promotion_klass,
-      'multi_item': multi_item_promotion_klass,
-    }
+    @options = options
   end
 
   def discounted_basket
-    prioritised_promo_rules.map do |promo_rule|
-      @basket = @promo_types[promo_rule[:type].to_sym].new(promo_rule, @basket).discounted_basket
+    prioritised_promo_rules.inject(@basket) do |basket, promotion|
+      promotion.discounted_basket(basket)
     end
-    @basket
   end
 
   private
 
-  def total
-    @basket.inject(0) { |sum, item| sum + item[:discounted_price] }
+  def prioritised_promo_rules
+    @promotional_rules.sort_by { |promotion| promotion.promo_rule[:priority] }
   end
 
-  def prioritised_promo_rules
-    @promotional_rules.sort_by { |promo_rule| promo_rule[:priority] }
+  def promo_klass(promotion)
+    promo_type = promotion.promo_rule[:type].to_sym
+    @options[promo_type] || PROMO_DEFAULT_HANDLER[promo_type]
+    # should raise an error if can not find class
   end
 end

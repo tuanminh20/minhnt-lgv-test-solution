@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative './discounter'
 require_relative './order_item'
 

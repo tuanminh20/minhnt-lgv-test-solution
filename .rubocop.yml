@@ -1,0 +1,6 @@
+inherit_from:
+  - .rubocop_airbnb.yml
+
+AllCops:
+  Exclude:
+    - spec/spec_helper.rb

@@ -1,4 +1,5 @@
 require_relative '../lib/percentage_off_promotion'
+require_relative '../lib/item'
 
 describe PercentageOffPromotion do
   it 'deducts 10% when it exceeds the eligibility of the rule' do

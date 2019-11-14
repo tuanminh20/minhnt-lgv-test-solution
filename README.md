@@ -39,3 +39,48 @@ Total price expected: £36.95
 Basket: 001,002,001,003
 Total price expected: £73.76
 ```
+
+## HOW TO RUN
+
+- Create promotions
+
+```ruby
+promotion1 = Promotion::PercentageOff.new(
+  type: :percentage_off,
+  eligible_min_amount: 6000,
+  percentage: 10,
+  priority: 1
+)
+
+promotion2 = Promotion::MultiItem.new(
+  type: :multi_item,
+  eligible_min_quantity: 2,
+  item_code: '001',
+  discounted_price: 850,
+  priority: 0
+)
+promotional_rules = [promotion2, promotion1]
+```
+
+- Create new checkout
+
+```ruby
+item1 = Item.new('001', 'Lavender heart', 925)
+item2 = Item.new('002', 'Personalised cufflinks', 4500)
+item3 = Item.new('003', 'Kids T-shirt', 1995)
+checkout = Checkout.new(promotional_rules)
+```
+
+- Scan items
+
+```ruby
+checkout.scan(item1)
+checkout.scan(item2)
+checkout.scan(item3)
+```
+
+- Print the result
+
+```ruby
+p checkout.total
+```

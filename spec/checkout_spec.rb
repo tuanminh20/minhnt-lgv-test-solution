@@ -2,148 +2,32 @@ require_relative '../lib/checkout'
 require_relative '../lib/item'
 
 describe 'Checkout' do
+  let(:discounter) { double(:discounter) }
+  let(:discounter_instance) { double(:discounter_instance) }
+
+  before(:each) do
+    allow(discounter).to receive(:new).and_return(discounter_instance)
+  end
+
   describe '#total' do
-    it 'returns £0.00 when no items have been scanned' do
-      co = Checkout.new
+    it 'returns £0.00 when discounter returns []' do
+      allow(discounter_instance).to receive(:discounted_basket).and_return([])
+
+      co = Checkout.new(discounter: discounter)
 
       expect(co.total).to eq '£0.00'
     end
 
-    it 'returns the combined price when two items have been scanned' do
-      item = Item.new('003', 'Funky light', 1995)
+    it 'returns formatted total of discounted_prices from basket returned by discounter' do
+      discounted_item1 = OrderItem.new('001', 'Very Cheap Chair', 925, 832)
+      discounted_item2 = OrderItem.new('002', 'Little table', 4500, 4050)
+      discounted_item3 = OrderItem.new('003', 'Funky light', 1995, 1796)
+      discounted_basket = [discounted_item1, discounted_item2, discounted_item3]
+      allow(discounter_instance).to receive(:discounted_basket).and_return(discounted_basket)
 
-      co = Checkout.new
-      co.scan(item)
-      co.scan(item)
-
-      expect(co.total).to eq '£39.90'
-    end
-
-    it 'returns the combined price - 10%, with promo rule and eligibility is met' do
-      item1 = Item.new('001', 'Very Cheap Chair', 925)
-      item2 = Item.new('002', 'Little table', 4500)
-      item3 = Item.new('003', 'Funky light', 1995)
-      promotional_rules = [{
-        type: 'percentage_off_basket',
-        eligible_min_amount: 6000,
-        percentage: 10,
-      },]
-
-      co = Checkout.new(promotional_rules: promotional_rules)
-      co.scan(item1)
-      co.scan(item2)
-      co.scan(item3)
+      co = Checkout.new(discounter: discounter)
 
       expect(co.total).to eq '£66.78'
-    end
-
-    it 'returns the standard combined price, with promo rule and eligibility is not met' do
-      item1 = Item.new('001', 'Very Cheap Chair', 925)
-      item2 = Item.new('002', 'Little table', 4500)
-      promotional_rules = [{
-        type: 'percentage_off_basket',
-        eligible_min_amount: 6000,
-        percentage: 10,
-      },]
-
-      co = Checkout.new(promotional_rules: promotional_rules)
-      co.scan(item1)
-      co.scan(item2)
-
-      expect(co.total).to eq '£54.25'
-    end
-
-    it 'returns the combined total with reduced prices, when multi_item_promo eligibility is met' do
-      item1 = Item.new('001', 'Very Cheap Chair', 925)
-
-      promotional_rules = [{
-        type: 'multi_item',
-        eligible_min_quantity: 2,
-        item_code: '001',
-        discounted_price: 850,
-      },]
-
-      co = Checkout.new(promotional_rules: promotional_rules)
-      co.scan(item1)
-      co.scan(item1)
-
-      expect(co.total).to eq '£17.00'
-    end
-
-    it 'returns the standard combined total, when multi_item_promo eligibility is not met' do
-      item1 = Item.new('001', 'Very Cheap Chair', 925)
-      item2 = Item.new('002', 'Little table', 4500)
-
-      promotional_rules = [{
-        type: 'multi_item',
-        eligible_min_quantity: 2,
-        item_code: '001',
-        discounted_price: 850,
-      },]
-
-      co = Checkout.new(promotional_rules: promotional_rules)
-      co.scan(item1)
-      co.scan(item2)
-
-      expect(co.total).to eq '£54.25'
-    end
-
-    it 'returns the combined total with both promotions applied' do
-      item1 = Item.new('001', 'Very Cheap Chair', 925)
-      item2 = Item.new('002', 'Little table', 4500)
-      item3 = Item.new('003', 'Funky light', 1995)
-
-      promotional_rules = [
-        {
-          type: 'multi_item',
-          eligible_min_quantity: 2,
-          item_code: '001',
-          discounted_price: 850,
-          priority: 0,
-        }, {
-          type: 'percentage_off_basket',
-          eligible_min_amount: 6000,
-          percentage: 10,
-          priority: 1,
-        },
-      ]
-
-      co = Checkout.new(promotional_rules: promotional_rules)
-      co.scan(item1)
-      co.scan(item2)
-      co.scan(item1)
-      co.scan(item3)
-
-      expect(co.total).to eq '£73.76'
-    end
-
-    it 'returns combined total with both promotions applied (multi_item_first)' do
-      item1 = Item.new('001', 'Very Cheap Chair', 925)
-      item2 = Item.new('002', 'Little table', 4500)
-      item3 = Item.new('003', 'Funky light', 1995)
-
-      promotional_rules = [
-        {
-          type: 'percentage_off_basket',
-          eligible_min_amount: 6000,
-          percentage: 10,
-          priority: 1,
-        }, {
-          type: 'multi_item',
-          eligible_min_quantity: 2,
-          item_code: '001',
-          discounted_price: 850,
-          priority: 0,
-        },
-      ]
-
-      co = Checkout.new(promotional_rules: promotional_rules)
-      co.scan(item1)
-      co.scan(item2)
-      co.scan(item1)
-      co.scan(item3)
-
-      expect(co.total).to eq '£73.76'
     end
   end
 end

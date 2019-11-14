@@ -1,12 +1,9 @@
-require 'pry'
 require_relative './discounter'
+require_relative './order_item'
 
 class Checkout
-  def initialize(
-    promotional_rules: [],
-    discounter: Discounter
-  )
-    @discounter
+  def initialize(promotional_rules: [], discounter: Discounter)
+    @discounter = discounter
     @promotional_rules = promotional_rules
     @basket = []
   end
@@ -16,15 +13,20 @@ class Checkout
   end
 
   def total
-    gross_total = Discounter.new(promotional_rules: @promotional_rules, basket: @basket).apply
-    number_to_currency(gross_total)
+    @basket = @discounter.new(
+      promotional_rules: @promotional_rules,
+      basket: @basket
+    ).discounted_basket
+    number_to_currency(total_price)
   end
 
   private
+
+  def total_price
+    @basket.inject(0) { |sum, item| sum + item[:discounted_price] }
+  end
 
   def number_to_currency(price)
     format('£%.2f', (price / 100.00).round(2))
   end
 end
-
-OrderItem = Struct.new(:item_code, :name, :price, :discounted_price)

@@ -1,7 +1,7 @@
 require_relative '../lib/checkout'
 require_relative '../lib/item'
 
-describe 'Checkout' do
+describe 'Checkout Feature' do
   context 'when there are no promotional rules' do
     it 'returns £0.00 when no items are scanned' do
       co = Checkout.new
@@ -92,6 +92,36 @@ describe 'Checkout' do
       co.scan(item3)
 
       expect(co.total).to eq '£73.76'
+    end
+
+    it 'works with different priorities, amounts and order_items in promotional_rules' do
+      item1 = Item.new('001', 'Very Cheap Chair', 100)
+      item2 = Item.new('002', 'Little table', 2500)
+      item3 = Item.new('003', 'Funky light', 1000)
+
+      promotional_rules = [
+        {
+          type: 'percentage_off_basket',
+          eligible_min_amount: 4500,
+          percentage: 1,
+          priority: 0,
+        }, {
+          type: 'multi_item',
+          eligible_min_quantity: 3,
+          item_code: '003',
+          discounted_price: 500,
+          priority: 1,
+        },
+      ]
+
+      co = Checkout.new(promotional_rules: promotional_rules)
+      co.scan(item1)
+      co.scan(item2)
+      co.scan(item3)
+      co.scan(item3)
+      co.scan(item3)
+
+      expect(co.total).to eq '£40.74'
     end
   end
 end

@@ -10,19 +10,17 @@ class Discounter
   )
     @promotional_rules = promotional_rules
     @basket = basket
-    @PROMO_TYPES = {
+    @promo_types = {
       'percentage_off_basket': percentage_off_promotion_klass,
-      'multi_item': multi_item_promotion_klass
+      'multi_item': multi_item_promotion_klass,
     }
   end
 
-  
-
-  def apply
+  def discounted_basket
     prioritised_promo_rules.map do |promo_rule|
-      @basket = @PROMO_TYPES[promo_rule[:type].to_sym].new(promo_rule, @basket).discounted_basket
+      @basket = @promo_types[promo_rule[:type].to_sym].new(promo_rule, @basket).discounted_basket
     end
-    total
+    @basket
   end
 
   private

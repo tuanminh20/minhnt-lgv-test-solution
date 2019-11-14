@@ -84,3 +84,12 @@ checkout.scan(item3)
 ```ruby
 p checkout.total
 ```
+
+## DESIGN
+
+[1] The solution use Strategy Design Pattern:
+
+- `Discounter` acts as the context. The Context accepts strategies through the constructor, but also able to change them at runtime
+- `Promotion::Base` The Strategy interface declares operations common to all supported versions of some algorithm: initialize, discounted_basket, eligible?, discount_items
+- Concrete Strategies: `Promotion::PercentageOff` `Promotion::MultiItem`,implement the algorithm while following the base Strategy interface. The interface makes them interchangeable in the Context
+- New promotion rules need a new strategy class

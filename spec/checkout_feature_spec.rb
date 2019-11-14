@@ -52,7 +52,7 @@ describe 'Checkout' do
           type: 'multi_item',
           eligible_min_quantity: 2,
           item_code: '001',
-          reduced_price: 850,
+          discounted_price: 850,
         },
       ]
 
@@ -80,7 +80,7 @@ describe 'Checkout' do
           type: 'multi_item',
           eligible_min_quantity: 2,
           item_code: '001',
-          reduced_price: 850,
+          discounted_price: 850,
           priority: 0,
         },
       ]

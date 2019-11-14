@@ -12,7 +12,7 @@ class Checkout
   end
 
   def scan(item)
-    @basket << item
+    @basket << OrderItem.new(item[:code], item[:name], item[:price], item[:price])
   end
 
   def total
@@ -26,3 +26,5 @@ class Checkout
     format('£%.2f', (price / 100.00).round(2))
   end
 end
+
+OrderItem = Struct.new(:item_code, :name, :price, :discounted_price)

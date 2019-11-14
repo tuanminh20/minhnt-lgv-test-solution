@@ -1,51 +1,55 @@
 require_relative '../lib/multi_item_promotion'
-require_relative '../lib/item'
+require_relative '../lib/checkout'
 
 describe MultiItemPromotion do
-  it 'returns the discounted amount when it has more than x associated items' do
-    item1 = Item.new('001', 'Very Cheap Chair', 925)
+  it 'returns discounted basket when it has more than x associated items' do
+    chair1 = OrderItem.new('001', 'Very Cheap Chair', 925, 925)
+    chair2 = OrderItem.new('001', 'Very Cheap Chair', 925, 925)
+    discounted_chair = OrderItem.new('001', 'Very Cheap Chair', 925, 850)
     promotional_rule = {
       type: 'multi_item',
       eligible_min_quantity: 2,
       item_code: '001',
-      reduced_price: 850,
+      discounted_price: 850,
     }
-    basket = [item1, item1]
+    basket = [chair1, chair2]
 
     multi_item_promo = MultiItemPromotion.new(promotional_rule, basket)
 
-    expect(multi_item_promo.apply).to eq 1700
+    expect(multi_item_promo.discounted_basket).to eq [discounted_chair, discounted_chair]
   end
 
-  it 'returns the discounted amount when it has more than x associated items and other items' do
-    item1 = Item.new('001', 'Very Cheap Chair', 925)
-    item2 = Item.new('002', 'Little table', 4500)
+  it 'returns discounted basket when it has more than x associated items and other items' do
+    chair1 = OrderItem.new('001', 'Very Cheap Chair', 925, 925)
+    chair2 = OrderItem.new('001', 'Very Cheap Chair', 925, 925)
+    table1 = OrderItem.new('002', 'Little table', 4500, 4500)
+    discounted_chair = OrderItem.new('001', 'Very Cheap Chair', 925, 850)
     promotional_rule = {
       type: 'multi_item',
       eligible_min_quantity: 2,
       item_code: '001',
-      reduced_price: 850,
+      discounted_price: 850,
     }
-    basket = [item1, item1, item2]
+    basket = [chair1, chair2, table1]
 
     multi_item_promo = MultiItemPromotion.new(promotional_rule, basket)
 
-    expect(multi_item_promo.apply).to eq 6200
+    expect(multi_item_promo.discounted_basket).to eq [discounted_chair, discounted_chair, table1]
   end
 
-  it 'returns the standard amount when it is not eligible' do
-    item1 = Item.new('001', 'Very Cheap Chair', 925)
-    item2 = Item.new('002', 'Little table', 4500)
+  it 'returns the original basket when it is not eligible' do
+    chair1 = OrderItem.new('001', 'Very Cheap Chair', 925, 925)
+    table1 = OrderItem.new('002', 'Little table', 4500, 4500)
     promotional_rule = {
       type: 'multi_item',
       eligible_min_quantity: 2,
       item_code: '001',
-      reduced_price: 850,
+      discounted_price: 850,
     }
-    basket = [item1, item2]
+    basket = [chair1, table1]
 
     multi_item_promo = MultiItemPromotion.new(promotional_rule, basket)
 
-    expect(multi_item_promo.apply).to eq 5425
+    expect(multi_item_promo.discounted_basket).to eq basket
   end
 end

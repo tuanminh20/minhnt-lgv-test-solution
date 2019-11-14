@@ -4,11 +4,11 @@ class MultiItemPromotion
     @basket = basket
   end
 
-  def apply
+  def discounted_basket
     if eligibile?
-      return basket_total - calculate_discount
+      return discount_items
     end
-    basket_total
+    @basket
   end
 
   private
@@ -19,19 +19,14 @@ class MultiItemPromotion
 
   def eligible_items_count
     @basket.count do |item|
-      item[:code] == @promo_rule[:item_code]
+      item[:item_code] == @promo_rule[:item_code]
     end
   end
 
-  def calculate_discount
-    eligible_items_count * (eligible_item_price - @promo_rule[:reduced_price])
-  end
-
-  def eligible_item_price
-    @basket.find { |item| item[:code] == @promo_rule[:item_code] }[:price]
-  end
-
-  def basket_total
-    @basket.inject(0) { |sum, item| sum + item[:price] }
+  def discount_items
+    @basket.map {|item|
+      item[:discounted_price] = @promo_rule[:discounted_price] if item[:item_code] == @promo_rule[:item_code] 
+      item
+    }
   end
 end

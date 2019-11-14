@@ -18,6 +18,6 @@ class PercentageOffPromotion
   end
 
   def eligible?
-    @amount >= @rule[:eligible_amount]
+    @amount >= @rule[:eligible_min_amount]
   end
 end

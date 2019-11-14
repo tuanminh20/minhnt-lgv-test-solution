@@ -18,11 +18,39 @@ class Checkout
       if promo_rule[:type] == 'percentage_off_basket'
         gross_total = @percentage_off_promotion_klass.new(promo_rule, net_total).apply
       end
+      if promo_rule[:type] == 'multi_item'
+        gross_total = multi_item_promotion(promo_rule)
+      end
     end
     number_to_currency(gross_total)
   end
 
   private
+
+  def multi_item_promotion(promo_rule)
+    if multi_item_promotion_eligibile?(promo_rule)
+      return net_total - multi_item_calculate_discount(promo_rule)
+    end
+    net_total
+  end
+
+  def multi_item_promotion_eligibile?(promo_rule)
+    multi_item_promotion_eligible_items_count(promo_rule) >= promo_rule[:eligible_min_quantity]
+  end
+
+  def multi_item_promotion_eligible_items_count(promo_rule)
+    @basket.count do |item|
+      item[:code] == promo_rule[:item_code]
+    end
+  end
+
+  def multi_item_calculate_discount(promo_rule)
+    multi_item_promotion_eligible_items_count(promo_rule) * (multi_item_promotion_eligible_item_price(promo_rule) - promo_rule[:reduced_price])
+  end
+
+  def multi_item_promotion_eligible_item_price(promo_rule)
+    @basket.find { |item| item[:code] == promo_rule[:item_code] }[:price]
+  end
 
   def net_total
     @basket.inject(0) { |sum, item| sum + item[:price] }

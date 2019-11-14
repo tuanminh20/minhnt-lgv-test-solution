@@ -28,7 +28,11 @@ describe 'Checkout' do
       item1 = Item.new('001', 'Very Cheap Chair', 925)
       item2 = Item.new('002', 'Little table', 4500)
       item3 = Item.new('003', 'Funky light', 1995)
-      promotional_rules = [{ type: 'percentage_off_basket', eligible_amount: 6000, percentage: 10 }]
+      promotional_rules = [{
+        type: 'percentage_off_basket',
+        eligible_min_amount: 6000,
+        percentage: 10,
+      },]
 
       co = Checkout.new(promotional_rules: promotional_rules)
       co.scan(item1)
@@ -36,6 +40,25 @@ describe 'Checkout' do
       co.scan(item3)
 
       expect(co.total).to eq '£66.78'
+    end
+  end
+
+  context 'when there is a multiple item  promotion' do
+    it 'returns the combined total with the reduced prices' do
+      item1 = Item.new('001', 'Very Cheap Chair', 925)
+
+      promotional_rules = [{
+        type: 'multi_item',
+        eligible_min_quantity: 2,
+        item_code: '001',
+        reduced_price: 850,
+      },]
+
+      co = Checkout.new(promotional_rules: promotional_rules)
+      co.scan(item1)
+      co.scan(item1)
+
+      expect(co.total).to eq '£17.00'
     end
   end
 end

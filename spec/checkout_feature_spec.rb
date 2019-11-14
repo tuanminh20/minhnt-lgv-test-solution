@@ -28,9 +28,9 @@ describe 'Checkout' do
       item1 = Item.new('001', 'Very Cheap Chair', 925)
       item2 = Item.new('002', 'Little table', 4500)
       item3 = Item.new('003', 'Funky light', 1995)
-      promotional_rules = [{ type: 'percentage_off_basket', eligible_amount: 6000, percantage: 10 }]
+      promotional_rules = [{ type: 'percentage_off_basket', eligible_amount: 6000, percentage: 10 }]
 
-      co = Checkout.new(promotional_rules)
+      co = Checkout.new(promotional_rules: promotional_rules)
       co.scan(item1)
       co.scan(item2)
       co.scan(item3)

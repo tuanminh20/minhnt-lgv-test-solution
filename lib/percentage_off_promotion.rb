@@ -1,23 +1,31 @@
 class PercentageOffPromotion
-  def initialize(rule, amount)
-    @rule = rule
-    @amount = amount
+  def initialize(promo_rule, basket)
+    @promo_rule = promo_rule
+    @basket = basket
   end
 
-  def apply
-    if eligible?
-      return @amount - discount
-    end
-    @amount
+  def discounted_basket
+    eligible? ? discount_items : @basket
   end
-
+  
   private
 
-  def discount
-    @amount / 100.0 * @rule[:percentage]
+  def eligible?
+    total >= @promo_rule[:eligible_min_amount]	
   end
 
-  def eligible?
-    @amount >= @rule[:eligible_min_amount]
+  def discount_items
+    @basket.map {|item|
+      item[:discounted_price] -= discount_to_be_applied(item[:discounted_price])
+      item
+    }
+  end
+
+  def discount_to_be_applied(amount)
+    (amount / 100.0 * @promo_rule[:percentage])
+  end
+
+  def total
+    @basket.inject(0){|sum, item| sum + item[:discounted_price]}
   end
 end

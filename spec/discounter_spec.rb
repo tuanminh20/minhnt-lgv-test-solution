@@ -28,7 +28,6 @@ describe Discounter do
   it 'with two promo_rules, it calls the second priority with result of first priority' do
     chair1 = OrderItem.new('001', 'Very Cheap Chair', 925, 925)
     chair2 = OrderItem.new('001', 'Very Cheap Chair', 925, 925)
-    table1 = OrderItem.new('002', 'Little table', 4500, 4500)
     light1 = OrderItem.new('003', 'Funky light', 1995, 1995)
     discounted_chair = OrderItem.new('001', 'Very Cheap Chair', 925, 850)
 
@@ -47,8 +46,10 @@ describe Discounter do
       priority: 0,
     }
     promotional_rules = [percentage_off_rule, multi_item_rule]
-    basket = [chair1, table1, chair2, light1]
-    discounted_basket = [discounted_chair, table1, discounted_chair, light1]
+    basket = [chair1, chair2, light1]
+    discounted_basket = [discounted_chair, discounted_chair, light1]
+
+    multi_item_promotion_instance_response = discounted_basket
 
     discounter = Discounter.new(
       promotional_rules: promotional_rules,
@@ -57,14 +58,13 @@ describe Discounter do
       multi_item_promotion_klass: multi_item_promotion
     )
 
-    pop_response = 10
 
     allow(multi_item_promotion).to receive(:new).and_return(multi_item_promotion_instance)
-    allow(multi_item_promotion_instance).to receive(:discounted_basket).and_return(discounted_basket)
+    allow(multi_item_promotion_instance).to receive(:discounted_basket).and_return(multi_item_promotion_instance_response)
     allow(percentage_off_promotion).to receive(:new).and_return(percentage_off_promotion_instance)
-    allow(percentage_off_promotion_instance).to receive(:apply).and_return(pop_response)
+    allow(percentage_off_promotion_instance).to receive(:discounted_basket).and_return(multi_item_promotion_instance_response)
 
-    expect(percentage_off_promotion).to receive(:new).with(percentage_off_rule, 8195)
+    expect(percentage_off_promotion).to receive(:new).with(percentage_off_rule, multi_item_promotion_instance_response)
 
     discounter.apply
   end
